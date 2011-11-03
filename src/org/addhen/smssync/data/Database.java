@@ -319,6 +319,22 @@ public class Database {
         };
         return mDb.delete(SENT_MESSAGES_TABLE, whereClause, whereArgs) > 0;
     }
+    
+    /**
+     * Fetch messages by message id in the database.
+     * 
+     * @param int messageId - Message id to fetch by.
+     * @return Cursor
+     */
+    public Cursor fetchSentMessagesById(int messageId) {
+        String selection = SENT_MESSAGES_ID + "= ?";
+        String selectionArgs[] = {
+            new Integer(messageId).toString()
+        };
+        
+        return mDb.query(SENT_MESSAGES_TABLE, SENT_MESSAGES_COLUMNS, selection, selectionArgs, null, null,
+                SENT_MESSAGES_DATE + " DESC");
+    }
 
     /**
      * Add a new message to the database.

@@ -176,13 +176,11 @@ public class SmsReceiverService extends Service {
 		}
 
 		if (Prefrences.enabled) {
-
-			if (Util.isConnected(SmsReceiverService.this)) {
-
-				// get the right format
-				AggregateMessage aggregateMessage = AggregateMessageFactory.getAggregateMessage(messagesBody, messagesTimestamp );
-				if(aggregateMessage != null) {
-
+			//check if right format and post if possible, otherwise add to pending box
+			AggregateMessage aggregateMessage = AggregateMessageFactory.getAggregateMessage(messagesBody, messagesTimestamp );
+			if(aggregateMessage != null) {
+				if (Util.isConnected(SmsReceiverService.this)) {
+					// get the right format
 					aggregateMessage.parse();
 					AggregateMessage mappedMessage = aggregateMessage.convert();
 
@@ -213,19 +211,19 @@ public class SmsReceiverService extends Service {
 						}
 						this.showNotification(messagesBody, getString(R.string.sending_succeeded));
 					}
-				}
-			} else {
-				// no internet
-				this.showNotification(messagesBody, getString(R.string.sending_failed));
-				this.postToPendingBox();
-				handler.post(mDisplayMessages);
 
-				connectToDataNetwork();
-				if (Prefrences.autoDelete) {
-					Util.delSmsFromInbox(SmsReceiverService.this, sms);
+				} else {
+					// no internet
+					this.showNotification(messagesBody, getString(R.string.sending_failed));
+					this.postToPendingBox();
+					handler.post(mDisplayMessages);
+
+					connectToDataNetwork();
+					if (Prefrences.autoDelete) {
+						Util.delSmsFromInbox(SmsReceiverService.this, sms);
+					}
 				}
 			}
-
 		}
 	}
 

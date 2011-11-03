@@ -557,22 +557,13 @@ public class Util {
 				int messagesBodyIndex = cursor.getColumnIndexOrThrow(Database.MESSAGES_BODY);
 				int messagesTimestampIndex = cursor.getColumnIndexOrThrow(Database.MESSAGES_DATE);
 				do {
-					Messages messages = new Messages();
-					listMessages.add(messages);
 
 					int messageId = Util.toInt(cursor.getString(messagesIdIndex));
-					messages.setMessageId(messageId);
-
 					messagesFrom = Util.capitalizeString(cursor.getString(messagesFromIndex));
-					messages.setMessageFrom(messagesFrom);
-
 					messagesBody = cursor.getString(messagesBodyIndex);
-					messages.setMessageBody(messagesBody);
-
 					messagesTimestamp = cursor.getString(messagesTimestampIndex);
-					messages.setMessageDate(messagesTimestamp);
 
-					// if right format post it to web
+					// check if right format and if match post it
 					AggregateMessage aggregateMessage = AggregateMessageFactory.getAggregateMessage(messagesBody, messagesTimestamp );
 					if(aggregateMessage != null) {
 
@@ -580,6 +571,14 @@ public class Util {
 						AggregateMessage mappedMessage = aggregateMessage.convert();
 
 						String xml = mappedMessage.getXMLString();
+
+						Messages messages = new Messages();
+						listMessages.add(messages);
+
+						messages.setMessageId(messageId);
+						messages.setMessageFrom(messagesFrom);
+						messages.setMessageBody(messagesBody);
+						messages.setMessageDate(messagesTimestamp);
 
 						// post to web service
 						if (Util.postToAWebService(xml, context)) {
@@ -594,6 +593,8 @@ public class Util {
 						} else {
 							deleted = 1;
 						}
+					} else {
+						deleted = 1;
 					}
 
 				} while (cursor.moveToNext());
@@ -772,40 +773,31 @@ public class Util {
 		};
 		String messageDate = "";
 		String messageBody = "";
+		String messageId = "";
 		Cursor c = context.getContentResolver().query(uriSms, projection, null, null, "date DESC");
 
 		if (c.getCount() > 0 && c != null) {
 			if (c.moveToFirst()) {
-
 				do {
 
 					messageDate = String.valueOf(c.getLong(c.getColumnIndex("date")));
-					Util.smsMap.put("messagesFrom", c.getString(c.getColumnIndex("address")));
+					messageBody = c.getString(c.getColumnIndex("body"));
+					messageId = c.getString(c.getColumnIndex("_id"));
 
-					// filter messages if keywoard is enabled
-					if (!Prefrences.keyword.equals("")) {
-						String[] keywords = Prefrences.keyword.split(",");
-						messageBody = c.getString(c.getColumnIndex("body"));
-						if (Util.processString(messageBody.toLowerCase(), keywords)) {
-							Util.smsMap.put("messagesBody", messageBody);
+					// only add if right format
+					AggregateMessage aggregateMessage = AggregateMessageFactory.getAggregateMessage(messageBody, messageDate );
+					if(aggregateMessage != null) {
+						Cursor cursor;
+						cursor = MainApplication.mDb.fetchSentMessagesById(Integer.parseInt(messageId));
+						if(cursor.getCount() == 0) {
 							messageDate = String.valueOf(c.getLong(c.getColumnIndex("date")));
-							Util.smsMap.put("messagesFrom",
-									c.getString(c.getColumnIndex("address")));
+							Util.smsMap.put("messagesFrom", c.getString(c.getColumnIndex("address")));
 							Util.smsMap.put("messagesBody", c.getString(c.getColumnIndex("body")));
 							Util.smsMap.put("messagesDate", messageDate);
 							Util.smsMap.put("messagesId", c.getString(c.getColumnIndex("_id")));
+							Util.processMessages(context);
 						}
-
-					} else {
-						messageDate = String.valueOf(c.getLong(c.getColumnIndex("date")));
-						Util.smsMap.put("messagesFrom", c.getString(c.getColumnIndex("address")));
-						Util.smsMap.put("messagesBody", c.getString(c.getColumnIndex("body")));
-						Util.smsMap.put("messagesDate", messageDate);
-						Util.smsMap.put("messagesId", c.getString(c.getColumnIndex("_id")));
 					}
-
-					Util.processMessages(context);
-
 				} while (c.moveToNext());
 			}
 			c.close();
