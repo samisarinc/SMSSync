@@ -1,0 +1,66 @@
+1.0.8:
+Feature:
+  * Added filtering when importing SMS.
+  * Added sent_to variable so the server can receive the phone number the SMS was sent to.
+  * Added message_id variable so the server can receive the unique id of the SMS.
+  * Added full HTTPS support.
+  
+Bug:
+  * Fixed issue with app widget not updating  view when pending messages are in the view.
+  * Improved performance with syncing pending messages. 
+
+1.0.7:
+Feature:
+  * Added 5 new languages. Swahili, Dutch, Hungarian, German and Italian.
+  * Added UTF-8 support when submitting messages.
+    
+1.0.6
+Feature:
+  * Added improvement that makes th battery consumption by the app.
+  * Added the ability for enabled services to automatically start after the phone boots up.
+  * Added the ability for the App to lock WiFi connection when the phone is connected to a WiFi.
+  * Added the ability for 'response messages' to be received from the server and not wait on a scheduler.
+  * Added confirmation dialog when performing delete actions.
+  * Added a tab that habours 'pending messages' view and 'sent messages' view.
+  * Added the ability for the app to log recent sent messages. Twenty is the Max.
+  * Added 'sent_timestamp' post variable in order to send the timestamp of an SMS.
+  * Added App widget support.
+
+Fixed:
+  * Fixed a bug that when all messages are deleted, the app shows a failed message yet the messages are deleted.
+  * Fixed the issue of pending messages' view not updating when pending messages are deleted from a background service.
+  
+1.0.5
+Feature:
+  * Scheduler automatically Syncs pending messages to the configured Callback URL.
+  * Now sends out messages from the configured callback URL as text message.
+  * Imports messages from Android messages app inbox for synchronizing to the configured callback 
+    URL.
+  * Added context menu for deleting or synchronizing pending messages.   
+
+Fixed:
+  * Improved callback URL validation process; Added more checks. Empty, malformed and connection 
+    checks.
+  * More sanity checks before SMSSync can be enabled. 
+
+Known issue:
+ * Scheduler doesn't refresh pending messages' list after it runs. The pending messages screen needs
+   to be restarted. 
+
+1.0.4
+* Notification cannot be cleared untill SMSSync is stopped.
+* Failed Messages now get sent to the outbox folder for later manual syncing when data connection is lost.
+
+1.0.3
+* Downgraded to Android 1.6 so smssync works from 1.6 and above.
+* Now sms can be deleted from the sms inbox. This is a configurable option. 
+* Fixed issue with the secret variable.
+* Better support for localization - All hardcoded strings have been moved to the string.xml file.
+* Supports outbox -- for pending messages that manually needs to be synced.
+* Improved SMS background service -- Now it starts and stops perfectly.
+* Added version number to the powered by text on the Settings screen.
+* Changed notification Icon to SMSSync's slick launch icon.
+* Shows status of Pending messages. Whether there are pending messages or not.
+* Prepopulates URL field with "http://" when setting up the sync URL.
+* Sends an auto response once the SMS is recieved. This is a configurable option.
+* Validates the callback URL for 
