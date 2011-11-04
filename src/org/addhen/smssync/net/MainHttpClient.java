@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.addhen.smssync.util.Util;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
@@ -41,8 +42,10 @@ import org.apache.http.conn.params.ConnPerRouteBean;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -127,14 +130,12 @@ public class MainHttpClient {
 		httppost.setHeader("Authorization", "Basic " + encoding);
 
 		try {
+			StringEntity se = new StringEntity(xml,HTTP.UTF_8);
 
-			// Add your data
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-			nameValuePairs.add(new BasicNameValuePair("", xml));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, HTTP.UTF_8));
+			se.setContentType("application/xml");  
+			httppost.setEntity(se);  
 
-			// Execute HTTP Post Request
-			HttpResponse response = httpclient.execute(httppost);
+			BasicHttpResponse response = (BasicHttpResponse) httpclient.execute(httppost);
 			
 			Log.i(CLASS_TAG, "postSmsToWebService(): code: "
 					+ response.getStatusLine().getStatusCode() + " xml: " + xml
